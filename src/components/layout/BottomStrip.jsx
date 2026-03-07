@@ -5,6 +5,7 @@ const ResearchHub    = lazy(() => import('../research/ResearchHub').then(m => ({
 const YouTubeTab     = lazy(() => import('../media/YouTubeTab').then(m => ({ default: m.YouTubeTab })))
 const StreamingTab   = lazy(() => import('../media/StreamingTab').then(m => ({ default: m.StreamingTab })))
 const AquariumCamsTab = lazy(() => import('../media/AquariumCamsTab').then(m => ({ default: m.AquariumCamsTab })))
+const SpeciesEncyclopedia = lazy(() => import('../research/SpeciesEncyclopedia').then(m => ({ default: m.SpeciesEncyclopedia })))
 
 const TABS = [
   { id: 'research', icon: '🦈', label: 'Research Hub', component: 'research' },
@@ -24,19 +25,6 @@ function TabFallback() {
   )
 }
 
-function SpeciesPlaceholder() {
-  return (
-    <div className="flex flex-col items-center justify-center h-32 gap-2">
-      <span className="text-3xl opacity-30">📖</span>
-      <p className="text-slate-500 text-sm text-center">
-        Species Encyclopedia — coming in Phase 5
-      </p>
-      <p className="text-slate-600 text-xs text-center px-4">
-        Browsable A–Z of shark species with size comparisons, depth ranges, and conservation status
-      </p>
-    </div>
-  )
-}
 
 /**
  * BottomStrip — Research and Media Hub tab strip.
@@ -121,7 +109,7 @@ export function BottomStrip({ forceOpen = false }) {
               {activeTab === 'youtube'   && <YouTubeTab />}
               {activeTab === 'streaming' && <StreamingTab />}
               {activeTab === 'aquarium'  && <AquariumCamsTab />}
-              {activeTab === 'species'   && <SpeciesPlaceholder />}
+              {activeTab === 'species'   && <SpeciesEncyclopedia />}
             </Suspense>
           </div>
         </div>
