@@ -25,8 +25,40 @@ import { SkeletonPhoto } from '../ui/LoadingSkeleton'
 export function PhotoOfDay({ photo, loading, error, onShowNext, hasMore }) {
   const [infoExpanded, setInfoExpanded] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
-  // ------------------------------------------------------------------ loading
+  // ── Collapsed strip — always available ────────────────────────────────────
+  if (!expanded) {
+    const imageUrl = photo?.urls?.regular || photo?.urls?.full || null
+    const commonName = photo?.taxonCommon || photo?.description || photo?.alt_description || null
+    return (
+      <div
+        className="flex-shrink-0 flex items-center gap-2 px-3"
+        style={{ height: 40, background: '#0a1f35', borderBottom: '1px solid #1a4a7a' }}
+      >
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt=""
+            aria-hidden="true"
+            style={{ width: 28, height: 28, objectFit: 'cover', borderRadius: 3, flexShrink: 0, opacity: 0.85 }}
+          />
+        )}
+        <span className="text-[11px] text-slate-400 flex-1 truncate">
+          {loading ? 'Loading photo…' : commonName ? `📷 ${commonName}` : '📷 Photo of the Day'}
+        </span>
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="flex-shrink-0 text-[10px] text-slate-500 hover:text-[#38bdf8] transition-colors whitespace-nowrap"
+        >
+          expand ▼
+        </button>
+      </div>
+    )
+  }
+
+  // ── Expanded: loading ─────────────────────────────────────────────────────
   if (loading && !photo) {
     return <SkeletonPhoto />
   }
@@ -185,6 +217,17 @@ export function PhotoOfDay({ photo, loading, error, onShowNext, hasMore }) {
 
           {/* Action buttons */}
           <div className="flex items-center gap-2">
+            {/* Collapse banner */}
+            <button
+              onClick={() => setExpanded(false)}
+              className="text-[10px] text-slate-400 hover:text-white transition-colors whitespace-nowrap"
+              title="Collapse photo"
+              aria-label="Collapse photo banner"
+              type="button"
+            >
+              ▲ collapse
+            </button>
+
             {/* Show next photo button */}
             {hasMore && onShowNext && (
               <button
