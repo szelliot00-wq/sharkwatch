@@ -2,13 +2,15 @@ import React from 'react'
 import { MoonPhase } from '../ui/MoonPhase'
 
 const RESEARCH_TABS = [
-  { id: 'research',  icon: '🦈', label: 'Research' },
-  { id: 'youtube',   icon: '🎥', label: 'YouTube'  },
-  { id: 'tiktok',    icon: '🎵', label: 'TikTok'   },
-  { id: 'streaming', icon: '📺', label: 'Streaming'},
-  { id: 'socials',   icon: '🐦', label: 'Socials'  },
-  { id: 'aquarium',  icon: '🏛️', label: 'Cams'     },
-  { id: 'species',   icon: '📖', label: 'Species'  },
+  { id: 'research',   icon: '🦈', label: 'Research'   },
+  { id: 'youtube',    icon: '🎥', label: 'YouTube'     },
+  { id: 'tiktok',     icon: '🎵', label: 'TikTok'      },
+  { id: 'streaming',  icon: '📺', label: 'Streaming'   },
+  { id: 'socials',    icon: '🐦', label: 'Socials'     },
+  { id: 'aquarium',   icon: '🏛️', label: 'Cams'        },
+  { id: 'species',    icon: '📖', label: 'Species'     },
+  { id: 'flashcards', icon: '🃏', label: 'Flashcards'  },
+  { id: 'history',    icon: '📅', label: 'History'     },
 ]
 
 export function Header({ lastUpdated, onRefresh, loading, researchTab, onResearchTab }) {

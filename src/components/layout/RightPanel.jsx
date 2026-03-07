@@ -3,6 +3,7 @@ import { useINaturalist } from '../../hooks/useINaturalist'
 import { useNewsFeeds } from '../../hooks/useNewsFeeds'
 import { SkeletonLine } from '../ui/LoadingSkeleton'
 import { ErrorBanner } from '../ui/ErrorBanner'
+import { DailyDigest } from './DailyDigest'
 
 function formatTimeAgo(dateStr) {
   if (!dateStr) return ''
@@ -87,7 +88,7 @@ function NewsItem({ item }) {
   )
 }
 
-export function RightPanel() {
+export function RightPanel({ topShark }) {
   const {
     sightings, loading: sightLoading, error: sightError, stale: sightStale,
     lastUpdated: sightUpdated, refresh: refreshSightings,
@@ -162,6 +163,12 @@ export function RightPanel() {
           ))}
         </div>
       </div>
+
+      {/* Daily digest — AI-generated ocean summary */}
+      <DailyDigest
+        topShark={topShark}
+        firstNewsHeadline={newsItems[0]?.title || null}
+      />
 
       {/* Error banners */}
       {(sightError || sightStale) && (

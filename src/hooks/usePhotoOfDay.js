@@ -190,5 +190,5 @@ export function usePhotoOfDay() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { photo, loading, error, showNext, hasMore: photoPool.length > 1 }
+  return { photo, photoPool, poolIndex, loading, error, showNext, hasMore: photoPool.length > 1 }
 }

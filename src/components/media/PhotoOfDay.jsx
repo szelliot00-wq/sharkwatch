@@ -22,7 +22,7 @@ import { SkeletonPhoto } from '../ui/LoadingSkeleton'
  *     taxonName, taxonCommon, location
  *   }
  */
-export function PhotoOfDay({ photo, loading, error, onShowNext, hasMore }) {
+export function PhotoOfDay({ photo, loading, error, onShowNext, hasMore, onOpenGallery }) {
   const [infoExpanded, setInfoExpanded] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
   const [expanded, setExpanded] = useState(true)
@@ -131,11 +131,26 @@ export function PhotoOfDay({ photo, loading, error, onShowNext, hasMore }) {
           src={imageUrl}
           alt={altText}
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-          style={{ opacity: imgLoaded ? 1 : 0 }}
+          style={{ opacity: imgLoaded ? 1 : 0, cursor: onOpenGallery ? 'pointer' : 'default' }}
           onLoad={() => setImgLoaded(true)}
+          onClick={onOpenGallery}
           loading="eager"
           decoding="async"
         />
+      )}
+
+      {/* Gallery hint — top-right corner */}
+      {onOpenGallery && imgLoaded && (
+        <button
+          onClick={onOpenGallery}
+          className="absolute top-2 right-2 text-[10px] px-2 py-1 rounded font-medium transition-colors"
+          style={{ background: 'rgba(5,14,26,0.7)', color: '#94a3b8', border: '1px solid #1a4a7a' }}
+          title="Open photo gallery"
+          type="button"
+          aria-label="Open photo gallery"
+        >
+          🖼 Gallery
+        </button>
       )}
 
       {/* Skeleton shown until image is loaded */}

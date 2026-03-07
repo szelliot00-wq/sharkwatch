@@ -128,6 +128,121 @@ export async function getPaperSummary(abstract) {
   return generateText(cacheKey, systemPrompt, userPrompt)
 }
 
+/** Parse a JSON array from a Gemini response, with bracket-extraction fallback. */
+function parseJSONArray(raw) {
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) return parsed
+  } catch { /* fall through */ }
+  try {
+    const m = raw.match(/\[[\s\S]*\]/)
+    if (m) {
+      const parsed = JSON.parse(m[0])
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch { /* fall through */ }
+  return null
+}
+
+/**
+ * Generate 5 shark myth-vs-fact True/False flashcard questions for a given date.
+ * Suitable for an 18-year-old with expert interest in sharks.
+ *
+ * @param {string} dateStr - YYYY-MM-DD (used as cache key so questions change daily)
+ * @returns {Promise<Array<{ statement: string, isTrue: boolean, explanation: string, category: string }>>}
+ */
+export async function getSharkFlashcards(dateStr) {
+  const cacheKey = `flashcards-${dateStr}`
+
+  if (cache.has(cacheKey)) return cache.get(cacheKey)
+
+  // Try pre-generated static file first (fast, no API quota used)
+  try {
+    const res = await fetch(`/daily/flashcards-${dateStr}.json`)
+    if (res.ok) {
+      const data = await res.json()
+      if (Array.isArray(data) && data.length > 0) {
+        cache.set(cacheKey, data)
+        return data
+      }
+    }
+  } catch { /* fall through to live API */ }
+
+  // Fall back to live Gemini API
+  const systemPrompt =
+    'You generate shark myth-vs-fact True/False flashcard questions for an 18-year-old with expert-level interest in marine biology. Questions must be scientifically accurate, surprising, and varied across species biology, behaviour, ocean science, conservation, and research. Mix true and false statements. Return a JSON array of exactly 5 objects, each with: statement (string), isTrue (boolean), explanation (string, 1-2 sentences of scientific context), category (one of: biology|behaviour|conservation|ocean|history).'
+
+  const userPrompt = `Generate 5 shark True/False flashcards for ${dateStr}. Avoid obvious myths like "sharks must swim to breathe" — go deeper and more surprising. Each should make the reader think.`
+
+  const raw = await generateText(cacheKey, systemPrompt, userPrompt)
+  const result = parseJSONArray(raw) ?? []
+  if (result.length > 0) cache.set(cacheKey, result)
+  return result
+}
+
+/**
+ * Generate 4 "on this day in shark history" events for a given date.
+ * Events should span different decades and categories.
+ *
+ * @param {string} monthDay - MM-DD (day of year used as cache key)
+ * @param {string} dateLabel - Human-readable date for the prompt (e.g. "7 March")
+ * @returns {Promise<Array<{ year: number, title: string, narrative: string, category: string }>>}
+ */
+export async function getSharkHistory(monthDay, dateLabel) {
+  const cacheKey = `history-${monthDay}`
+
+  if (cache.has(cacheKey)) return cache.get(cacheKey)
+
+  // Try pre-generated static file first
+  try {
+    const res = await fetch(`/daily/history-${monthDay}.json`)
+    if (res.ok) {
+      const data = await res.json()
+      if (Array.isArray(data) && data.length > 0) {
+        cache.set(cacheKey, data)
+        return data
+      }
+    }
+  } catch { /* fall through to live API */ }
+
+  // Fall back to live Gemini API
+  const systemPrompt =
+    'You are a shark science historian generating "on this day / this week in shark history" events. Events can be real or plausibly constructed from the history of shark research — first expeditions, species discoveries, landmark conservation laws, famous research milestones, first cage dives, important publications, tagging firsts. Be specific with years, places, and names. Content should inspire a teenage marine biology enthusiast. Return a JSON array of exactly 4 objects with: year (number), title (string, max 70 chars), narrative (string, 2-3 vivid sentences), category (one of: research|discovery|conservation|encounter|milestone).'
+
+  const userPrompt = `Generate 4 shark history events for "this week in shark history" — events that happened around ${dateLabel}. Span different decades between 1930 and 2020. Make each one feel like a significant moment in shark science.`
+
+  const raw = await generateText(cacheKey, systemPrompt, userPrompt)
+  const result = parseJSONArray(raw) ?? []
+  if (result.length > 0) cache.set(cacheKey, result)
+  return result
+}
+
+/**
+ * Generate a short "what's happening in the ocean right now" daily digest.
+ * Weaves together moon phase, top tracked shark, and a news headline.
+ *
+ * @param {object} params
+ * @param {string} params.moonEmoji
+ * @param {string} params.moonPhase
+ * @param {string} params.moonNote
+ * @param {string} params.sharkName
+ * @param {string} params.sharkSpecies
+ * @param {string} params.newsHeadline
+ * @param {string} params.dateStr - YYYY-MM-DD cache key
+ * @returns {Promise<string|null>}
+ */
+export async function getDailyDigest({ moonEmoji, moonPhase, moonNote, sharkName, sharkSpecies, newsHeadline, dateStr }) {
+  const cacheKey = `digest-${dateStr}`
+
+  const systemPrompt =
+    'You write a single-paragraph "what\'s happening in the ocean right now" daily digest for an 18-year-old marine biology enthusiast. Exactly 3 sentences. Weave together: the current moon phase and what it means for shark behaviour, the day\'s most active tracked shark, and one current news headline. Present tense, vivid, scientifically grounded. Plain text only — no markdown, no headers, no bullet points.'
+
+  const userPrompt = `Moon: ${moonEmoji} ${moonPhase} — ${moonNote}. Most active tracked shark: ${sharkName} (${sharkSpecies}). Today's news: "${newsHeadline}". Write today's ocean digest.`
+
+  return generateText(cacheKey, systemPrompt, userPrompt)
+}
+
 /**
  * Generate a shark-scoped chat response using conversation history.
  * The assistant will redirect off-topic questions back to sharks.

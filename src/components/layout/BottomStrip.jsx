@@ -8,6 +8,8 @@ const TikTokTab       = lazy(() => import('../media/TikTokTab').then(m => ({ def
 const StreamingTab    = lazy(() => import('../media/StreamingTab').then(m => ({ default: m.StreamingTab })))
 const SocialsTab      = lazy(() => import('../media/SocialsTab').then(m => ({ default: m.SocialsTab })))
 const AquariumCamsTab = lazy(() => import('../media/AquariumCamsTab').then(m => ({ default: m.AquariumCamsTab })))
+const SharkFlashcards = lazy(() => import('../research/SharkFlashcards').then(m => ({ default: m.SharkFlashcards })))
+const SharkHistoryTab = lazy(() => import('../research/SharkHistoryTab').then(m => ({ default: m.SharkHistoryTab })))
 
 // Tabs (used for the mobile tab bar when forceOpen=true)
 const TABS = [
@@ -16,8 +18,10 @@ const TABS = [
   { id: 'tiktok',    icon: '🎵', label: 'TikTok'         },
   { id: 'streaming', icon: '📺', label: 'Streaming'      },
   { id: 'socials',   icon: '🐦', label: 'Socials'        },
-  { id: 'aquarium',  icon: '🏛️', label: 'Aquarium Cams' },
-  { id: 'species',   icon: '📖', label: 'Species'        },
+  { id: 'aquarium',   icon: '🏛️', label: 'Aquarium Cams' },
+  { id: 'species',    icon: '📖', label: 'Species'        },
+  { id: 'flashcards', icon: '🃏', label: 'Flashcards'     },
+  { id: 'history',    icon: '📅', label: 'History'        },
 ]
 
 const CONTENT_HEIGHT = 350
@@ -58,6 +62,14 @@ export function BottomStrip({ forceOpen = false, activeTab: externalTab, onTabCh
     } else {
       // Toggle: clicking active tab closes panel
       onTabChange?.(activeTab === tabId ? null : tabId)
+    }
+  }
+
+  function handleClose() {
+    if (forceOpen) {
+      setInternalTab('research')
+    } else {
+      onTabChange?.(null)
     }
   }
 
@@ -126,8 +138,10 @@ export function BottomStrip({ forceOpen = false, activeTab: externalTab, onTabCh
               {activeTab === 'tiktok'    && <TikTokTab />}
               {activeTab === 'streaming' && <StreamingTab />}
               {activeTab === 'socials'   && <SocialsTab />}
-              {activeTab === 'aquarium'  && <AquariumCamsTab />}
-              {activeTab === 'species'   && <SpeciesEncyclopedia />}
+              {activeTab === 'aquarium'   && <AquariumCamsTab />}
+              {activeTab === 'species'    && <SpeciesEncyclopedia />}
+              {activeTab === 'flashcards' && <SharkFlashcards onClose={handleClose} />}
+              {activeTab === 'history'    && <SharkHistoryTab />}
             </Suspense>
           </div>
         </div>

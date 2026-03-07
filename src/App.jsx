@@ -13,6 +13,7 @@ import SharkMap from './components/map/SharkMap'
 import SharkDetailDrawer from './components/sharks/SharkDetailDrawer'
 import { SharkChat } from './components/ui/SharkChat'
 import { SharkSpotlight } from './components/ui/SharkSpotlight'
+import { PhotoGallery } from './components/media/PhotoGallery'
 
 // Wikipedia species summary cache (keyed by species name, persists for session)
 const wikiCache = {}
@@ -33,7 +34,7 @@ function useMediaQuery(query) {
 export default function App() {
   // ── Data hooks ──────────────────────────────────────────────────────────────
   const { animals, pings, loading, error, stale, lastUpdated, refresh, fetchMotion } = useSharkData()
-  const { photo, loading: photoLoading, error: photoError, showNext, hasMore } = usePhotoOfDay()
+  const { photo, photoPool, poolIndex, loading: photoLoading, error: photoError, showNext, hasMore } = usePhotoOfDay()
   const { sightings } = useINaturalist()
   const { favourites, toggleFavourite, clearFavourites } = useFavourites()
 
@@ -50,6 +51,24 @@ export default function App() {
   // ── Gemini fun facts ─────────────────────────────────────────────────────────
   const [funFacts, setFunFacts] = useState(null)
   const [funFactsLoading, setFunFactsLoading] = useState(false)
+
+  // ── Gallery state ────────────────────────────────────────────────────────────
+  const [galleryOpen,  setGalleryOpen]  = useState(false)
+  const [galleryIndex, setGalleryIndex] = useState(0)
+
+  function openGallery() {
+    if (photoPool.length === 0) return
+    setGalleryIndex(poolIndex)
+    setGalleryOpen(true)
+  }
+
+  function galleryPrev() {
+    setGalleryIndex(i => (i - 1 + photoPool.length) % photoPool.length)
+  }
+
+  function galleryNext() {
+    setGalleryIndex(i => (i + 1) % photoPool.length)
+  }
 
   // ── Mobile layout state ──────────────────────────────────────────────────────
   const [mobileTab, setMobileTab] = useState('map') // 'sharks' | 'map' | 'feed' | 'research'
@@ -147,7 +166,7 @@ export default function App() {
 
         {/* Compact photo banner on mobile */}
         <div className="flex-shrink-0" style={{ maxHeight: 140, overflow: 'hidden' }}>
-          <PhotoOfDay photo={photo} loading={photoLoading} error={photoError} onShowNext={showNext} hasMore={hasMore} />
+          <PhotoOfDay photo={photo} loading={photoLoading} error={photoError} onShowNext={showNext} hasMore={hasMore} onOpenGallery={photoPool.length > 0 ? openGallery : undefined} />
         </div>
 
         {/* Map — takes remaining space above the bottom nav */}
@@ -200,7 +219,7 @@ export default function App() {
           <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
             <SharkSpotlight shark={animals[0] ?? null} />
             <div className="flex-1 min-h-0">
-              <RightPanel />
+              <RightPanel topShark={animals[0] ?? null} />
             </div>
           </div>
         )}
@@ -243,6 +262,17 @@ export default function App() {
         </div>
 
         <SharkChat />
+
+        {/* Gallery overlay */}
+        {galleryOpen && photoPool.length > 0 && (
+          <PhotoGallery
+            photos={photoPool}
+            currentIndex={galleryIndex}
+            onPrev={galleryPrev}
+            onNext={galleryNext}
+            onClose={() => setGalleryOpen(false)}
+          />
+        )}
       </div>
     )
   }
@@ -270,6 +300,7 @@ export default function App() {
           error={photoError}
           onShowNext={showNext}
           hasMore={hasMore}
+          onOpenGallery={photoPool.length > 0 ? openGallery : undefined}
         />
       </div>
 
@@ -317,7 +348,7 @@ export default function App() {
         <div className="flex-shrink-0 w-[260px] flex flex-col overflow-hidden">
           <SharkSpotlight shark={animals[0] ?? null} />
           <div className="flex-1 min-h-0">
-            <RightPanel />
+            <RightPanel topShark={animals[0] ?? null} />
           </div>
         </div>
 
@@ -328,6 +359,17 @@ export default function App() {
 
       {/* ── FLOATING: Ask a Shark chat widget ────────────────────────────── */}
       <SharkChat />
+
+      {/* ── GALLERY: Full-screen photo overlay ───────────────────────────── */}
+      {galleryOpen && photoPool.length > 0 && (
+        <PhotoGallery
+          photos={photoPool}
+          currentIndex={galleryIndex}
+          onPrev={galleryPrev}
+          onNext={galleryNext}
+          onClose={() => setGalleryOpen(false)}
+        />
+      )}
     </div>
   )
 }
