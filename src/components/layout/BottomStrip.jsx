@@ -5,6 +5,7 @@ import { SpeciesEncyclopedia } from '../research/SpeciesEncyclopedia'
 const ResearchHub     = lazy(() => import('../research/ResearchHub').then(m => ({ default: m.ResearchHub })))
 const YouTubeTab      = lazy(() => import('../media/YouTubeTab').then(m => ({ default: m.YouTubeTab })))
 const StreamingTab    = lazy(() => import('../media/StreamingTab').then(m => ({ default: m.StreamingTab })))
+const SocialsTab      = lazy(() => import('../media/SocialsTab').then(m => ({ default: m.SocialsTab })))
 const AquariumCamsTab = lazy(() => import('../media/AquariumCamsTab').then(m => ({ default: m.AquariumCamsTab })))
 
 // Tabs (used for the mobile tab bar when forceOpen=true)
@@ -12,6 +13,7 @@ const TABS = [
   { id: 'research',  icon: '🦈', label: 'Research Hub'  },
   { id: 'youtube',   icon: '🎥', label: 'YouTube'        },
   { id: 'streaming', icon: '📺', label: 'Streaming'      },
+  { id: 'socials',   icon: '🐦', label: 'Socials'        },
   { id: 'aquarium',  icon: '🏛️', label: 'Aquarium Cams' },
   { id: 'species',   icon: '📖', label: 'Species'        },
 ]
@@ -120,6 +122,7 @@ export function BottomStrip({ forceOpen = false, activeTab: externalTab, onTabCh
               {activeTab === 'research'  && <ResearchHub />}
               {activeTab === 'youtube'   && <YouTubeTab />}
               {activeTab === 'streaming' && <StreamingTab />}
+              {activeTab === 'socials'   && <SocialsTab />}
               {activeTab === 'aquarium'  && <AquariumCamsTab />}
               {activeTab === 'species'   && <SpeciesEncyclopedia />}
             </Suspense>

@@ -5,6 +5,7 @@ const RESEARCH_TABS = [
   { id: 'research',  icon: '🦈', label: 'Research' },
   { id: 'youtube',   icon: '🎥', label: 'YouTube'  },
   { id: 'streaming', icon: '📺', label: 'Streaming'},
+  { id: 'socials',   icon: '🐦', label: 'Socials'  },
   { id: 'aquarium',  icon: '🏛️', label: 'Cams'     },
   { id: 'species',   icon: '📖', label: 'Species'  },
 ]
