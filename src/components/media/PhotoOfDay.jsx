@@ -25,7 +25,7 @@ import { SkeletonPhoto } from '../ui/LoadingSkeleton'
 export function PhotoOfDay({ photo, loading, error, onShowNext, hasMore }) {
   const [infoExpanded, setInfoExpanded] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(true)
 
   // ── Collapsed strip — always available ────────────────────────────────────
   if (!expanded) {
@@ -69,8 +69,7 @@ export function PhotoOfDay({ photo, loading, error, onShowNext, hasMore }) {
       <div
         className="relative w-full flex items-center justify-center overflow-hidden rounded-b-lg"
         style={{
-          aspectRatio: '16/9',
-          maxHeight: 360,
+          height: 220,
           background: '#0a1f35',
           border: '1px solid #1a4a7a',
         }}
@@ -122,7 +121,7 @@ export function PhotoOfDay({ photo, loading, error, onShowNext, hasMore }) {
   return (
     <div
       className="relative w-full overflow-hidden"
-      style={{ aspectRatio: '16/9', maxHeight: 360 }}
+      style={{ height: 220 }}
       role="figure"
       aria-label={`Photo of the day: ${commonName}`}
     >
