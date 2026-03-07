@@ -4,6 +4,7 @@ import { SpeciesEncyclopedia } from '../research/SpeciesEncyclopedia'
 // Lazy-load heavy tab content so it doesn't block initial render
 const ResearchHub     = lazy(() => import('../research/ResearchHub').then(m => ({ default: m.ResearchHub })))
 const YouTubeTab      = lazy(() => import('../media/YouTubeTab').then(m => ({ default: m.YouTubeTab })))
+const TikTokTab       = lazy(() => import('../media/TikTokTab').then(m => ({ default: m.TikTokTab })))
 const StreamingTab    = lazy(() => import('../media/StreamingTab').then(m => ({ default: m.StreamingTab })))
 const SocialsTab      = lazy(() => import('../media/SocialsTab').then(m => ({ default: m.SocialsTab })))
 const AquariumCamsTab = lazy(() => import('../media/AquariumCamsTab').then(m => ({ default: m.AquariumCamsTab })))
@@ -12,6 +13,7 @@ const AquariumCamsTab = lazy(() => import('../media/AquariumCamsTab').then(m => 
 const TABS = [
   { id: 'research',  icon: '🦈', label: 'Research Hub'  },
   { id: 'youtube',   icon: '🎥', label: 'YouTube'        },
+  { id: 'tiktok',    icon: '🎵', label: 'TikTok'         },
   { id: 'streaming', icon: '📺', label: 'Streaming'      },
   { id: 'socials',   icon: '🐦', label: 'Socials'        },
   { id: 'aquarium',  icon: '🏛️', label: 'Aquarium Cams' },
@@ -121,6 +123,7 @@ export function BottomStrip({ forceOpen = false, activeTab: externalTab, onTabCh
             <Suspense fallback={<TabFallback />}>
               {activeTab === 'research'  && <ResearchHub />}
               {activeTab === 'youtube'   && <YouTubeTab />}
+              {activeTab === 'tiktok'    && <TikTokTab />}
               {activeTab === 'streaming' && <StreamingTab />}
               {activeTab === 'socials'   && <SocialsTab />}
               {activeTab === 'aquarium'  && <AquariumCamsTab />}
