@@ -1,18 +1,15 @@
 import React from 'react'
 import { MoonPhase } from '../ui/MoonPhase'
 
-/**
- * Header — top strip header bar for SharkWatch.
- *
- * Props:
- *   lastUpdated  Date | null   Timestamp of last data refresh
- *   onRefresh    function      Called when user clicks the refresh button
- *   loading      boolean       True while a refresh is in progress
- */
-export function Header({ lastUpdated, onRefresh, loading }) {
-  /**
-   * Format the last-updated timestamp into a human-readable relative string.
-   */
+const RESEARCH_TABS = [
+  { id: 'research',  icon: '🦈', label: 'Research' },
+  { id: 'youtube',   icon: '🎥', label: 'YouTube'  },
+  { id: 'streaming', icon: '📺', label: 'Streaming'},
+  { id: 'aquarium',  icon: '🏛️', label: 'Cams'     },
+  { id: 'species',   icon: '📖', label: 'Species'  },
+]
+
+export function Header({ lastUpdated, onRefresh, loading, researchTab, onResearchTab }) {
   function formatUpdated() {
     if (!lastUpdated) return null
     const mins = Math.floor((Date.now() - lastUpdated.getTime()) / 60_000)
@@ -27,55 +24,63 @@ export function Header({ lastUpdated, onRefresh, loading }) {
 
   return (
     <header
-      className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 gap-4 flex-shrink-0"
-      style={{
-        background: '#050e1a',
-        borderBottom: '1px solid #1a4a7a',
-        minHeight: 48,
-      }}
+      className="flex items-center gap-2 px-3 sm:px-4 py-2 flex-shrink-0"
+      style={{ background: '#050e1a', borderBottom: '1px solid #1a4a7a', minHeight: 48 }}
     >
-      {/* Left — brand */}
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-        <span className="text-xl sm:text-2xl leading-none flex-shrink-0" aria-hidden="true">
-          🦈
-        </span>
-        <div className="min-w-0">
-          <h1 className="text-sm sm:text-base font-bold text-white leading-tight truncate">
-            SharkWatch
-          </h1>
-          {/* Subtitle hidden on mobile to keep the header compact */}
-          <p className="text-xs text-slate-400 leading-tight hidden sm:block">
-            Global Shark Intelligence
-          </p>
+      {/* Brand */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <span className="text-xl sm:text-2xl leading-none" aria-hidden="true">🦈</span>
+        <div className="hidden sm:block">
+          <h1 className="text-sm sm:text-base font-bold text-white leading-tight">SharkWatch</h1>
+          <p className="text-xs text-slate-400 leading-tight">Global Shark Intelligence</p>
         </div>
       </div>
 
-      {/* Right — controls cluster */}
-      <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-        {/* Last-updated timestamp — hidden on mobile, shown md+ */}
-        <div className="text-xs text-slate-400 hidden md:block whitespace-nowrap">
+      {/* Research tab buttons — desktop only */}
+      <nav
+        className="hidden md:flex items-center gap-0.5 flex-1 justify-center"
+        aria-label="Research panels"
+      >
+        {RESEARCH_TABS.map(tab => {
+          const isActive = researchTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => onResearchTab?.(isActive ? null : tab.id)}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-medium transition-all whitespace-nowrap"
+              style={{
+                color: isActive ? '#f97316' : '#94a3b8',
+                background: isActive ? 'rgba(249,115,22,0.12)' : 'transparent',
+                border: isActive ? '1px solid rgba(249,115,22,0.4)' : '1px solid transparent',
+              }}
+              onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = '#e2e8f0' }}
+              onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = '#94a3b8' }}
+              title={tab.label}
+            >
+              <span>{tab.icon}</span>
+              <span className="hidden lg:inline">{tab.label}</span>
+            </button>
+          )
+        })}
+      </nav>
+
+      {/* Controls */}
+      <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 ml-auto">
+        <div className="text-xs text-slate-400 hidden lg:block whitespace-nowrap">
           {loading ? (
             <span className="text-[#38bdf8]">Updating…</span>
           ) : updatedLabel ? (
-            <>
-              Updated{' '}
-              <span className="text-slate-300">{updatedLabel}</span>
-            </>
+            <>Updated <span className="text-slate-300">{updatedLabel}</span></>
           ) : null}
         </div>
-
-        {/* Moon phase widget — always visible */}
         <MoonPhase />
-
-        {/* Refresh button — always visible */}
         <button
           onClick={onRefresh}
           disabled={loading}
           className={[
             'text-lg leading-none transition-colors',
-            loading
-              ? 'text-slate-500 cursor-not-allowed animate-spin'
-              : 'text-slate-300 hover:text-[#38bdf8]',
+            loading ? 'text-slate-500 cursor-not-allowed animate-spin' : 'text-slate-300 hover:text-[#38bdf8]',
           ].join(' ')}
           title={loading ? 'Refreshing…' : 'Refresh data'}
           aria-label={loading ? 'Refreshing data' : 'Refresh data'}

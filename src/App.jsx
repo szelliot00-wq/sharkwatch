@@ -37,6 +37,9 @@ export default function App() {
   const { sightings } = useINaturalist()
   const { favourites, toggleFavourite, clearFavourites } = useFavourites()
 
+  // ── Research panel tab (shared between Header and BottomStrip) ───────────────
+  const [researchTab, setResearchTab] = useState(null)
+
   // ── Selected shark state ─────────────────────────────────────────────────────
   const [selectedShark, setSelectedShark] = useState(null)
 
@@ -140,7 +143,7 @@ export default function App() {
   if (isMobile) {
     return (
       <div className="flex flex-col" style={{ height: '100dvh', background: '#050e1a', overflow: 'hidden' }}>
-        <Header lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} />
+        <Header lastUpdated={lastUpdated} onRefresh={refresh} loading={loading} researchTab={researchTab} onResearchTab={setResearchTab} />
 
         {/* Compact photo banner on mobile */}
         <div className="flex-shrink-0" style={{ maxHeight: 140, overflow: 'hidden' }}>
@@ -255,6 +258,8 @@ export default function App() {
         lastUpdated={lastUpdated}
         onRefresh={refresh}
         loading={loading}
+        researchTab={researchTab}
+        onResearchTab={setResearchTab}
       />
 
       {/* ── HERO BANNER: Photo of Day ─────────────────────────────────────── */}
@@ -319,9 +324,7 @@ export default function App() {
       </div>
 
       {/* ── BOTTOM STRIP: Research hub tabs ──────────────────────────────── */}
-      <div className="flex-shrink-0">
-        <BottomStrip />
-      </div>
+      <BottomStrip activeTab={researchTab} onTabChange={setResearchTab} />
 
       {/* ── FLOATING: Ask a Shark chat widget ────────────────────────────── */}
       <SharkChat />
