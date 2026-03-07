@@ -1,0 +1,72 @@
+export const STREAMING_CONTENT = [
+  {
+    platform: 'Netflix',
+    title: 'Shark Whisperer',
+    year: 2025,
+    description: 'A marine biologist forms extraordinary bonds with sharks off the coast of the Bahamas.',
+    url: 'https://www.netflix.com/gb/title/81639669',
+    posterEmoji: '🦈',
+  },
+  {
+    platform: 'Netflix',
+    title: 'All the Sharks',
+    year: 2025,
+    description: 'An immersive documentary series exploring every known shark species and their ecosystems.',
+    url: 'https://www.netflix.com/gb/title/81711583',
+    posterEmoji: '🌊',
+  },
+  {
+    platform: 'Netflix',
+    title: 'Shark (BBC)',
+    year: 2016,
+    description: 'David Attenborough narrates this landmark BBC series revealing the secret lives of sharks.',
+    url: 'https://www.netflix.com/gb/title/80100122',
+    posterEmoji: '🎬',
+  },
+  {
+    platform: 'Disney+',
+    title: 'Sharks Up Close with Bertie Gregory',
+    year: 2025,
+    description: 'National Geographic explorer Bertie Gregory dives into the world of sharks in stunning 4K.',
+    url: 'https://www.disneyplus.com/en-gb/series/sharks-up-close-with-bertie-gregory',
+    posterEmoji: '🤿',
+  },
+  {
+    platform: 'Disney+',
+    title: 'Super Shark Highway',
+    year: 2025,
+    description: 'Following the extraordinary migration routes of sharks across the world\'s oceans.',
+    url: 'https://www.disneyplus.com/en-gb/series/super-shark-highway',
+    posterEmoji: '🗺️',
+  },
+  {
+    platform: 'Disney+',
+    title: 'Investigation Shark Attack',
+    year: 2025,
+    description: 'Scientists investigate rare shark encounters to better understand and prevent them.',
+    url: 'https://www.disneyplus.com/en-gb/series/investigation-shark-attack',
+    posterEmoji: '🔬',
+  },
+  {
+    platform: 'Disney+',
+    title: 'Sharks of the North',
+    year: 2025,
+    description: 'Exploring the surprising diversity of shark species in cold northern ocean waters.',
+    url: 'https://www.disneyplus.com/en-gb/series/sharks-of-the-north',
+    posterEmoji: '🧊',
+  },
+  {
+    platform: 'Prime',
+    title: 'Shark (BBC)',
+    year: 2016,
+    description: 'The landmark BBC shark documentary also available on Amazon Prime for UK viewers.',
+    url: 'https://www.amazon.co.uk/dp/B011KK8KOQ',
+    posterEmoji: '📺',
+  },
+]
+
+export const PLATFORM_STYLES = {
+  Netflix: { bg: '#1a0a0a', border: '#E50914', badge: '#E50914', text: 'Netflix' },
+  'Disney+': { bg: '#0a0a1a', border: '#0063e5', badge: '#0063e5', text: 'Disney+' },
+  Prime:    { bg: '#0a0d1a', border: '#00A8E1', badge: '#00A8E1', text: 'Prime' },
+}
