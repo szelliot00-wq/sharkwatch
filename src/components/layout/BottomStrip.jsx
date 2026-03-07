@@ -1,11 +1,11 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react'
+import { SpeciesEncyclopedia } from '../research/SpeciesEncyclopedia'
 
 // Lazy-load heavy tab content so it doesn't block initial render
 const ResearchHub    = lazy(() => import('../research/ResearchHub').then(m => ({ default: m.ResearchHub })))
 const YouTubeTab     = lazy(() => import('../media/YouTubeTab').then(m => ({ default: m.YouTubeTab })))
 const StreamingTab   = lazy(() => import('../media/StreamingTab').then(m => ({ default: m.StreamingTab })))
 const AquariumCamsTab = lazy(() => import('../media/AquariumCamsTab').then(m => ({ default: m.AquariumCamsTab })))
-const SpeciesEncyclopedia = lazy(() => import('../research/SpeciesEncyclopedia').then(m => ({ default: m.SpeciesEncyclopedia })))
 
 const TABS = [
   { id: 'research', icon: '🦈', label: 'Research Hub', component: 'research' },
