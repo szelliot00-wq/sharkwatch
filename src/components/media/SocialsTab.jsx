@@ -1,12 +1,5 @@
 import { useState } from 'react'
-import { useSharkSocialFeed, FEED_ACCOUNTS } from '../../hooks/useSharkSocialFeed'
-
-const CATEGORY_COLORS = {
-  research:     '#38bdf8',
-  conservation: '#4ade80',
-  scientist:    '#a78bfa',
-  aquarium:     '#f97316',
-}
+import { useSharkSocialFeed } from '../../hooks/useSharkSocialFeed'
 
 function relTime(date) {
   if (!date) return ''
@@ -19,59 +12,70 @@ function relTime(date) {
   return `${Math.floor(hrs / 24)}d ago`
 }
 
-function TweetCard({ tweet }) {
-  const color = CATEGORY_COLORS[tweet.category] || '#94a3b8'
+function PostCard({ post }) {
   return (
     <article
-      className="rounded-lg p-3 flex flex-col gap-1.5"
+      className="rounded-lg p-3 flex flex-col gap-2"
       style={{ background: '#070f1c', border: '1px solid #1a4a7a' }}
     >
-      {/* Header row */}
+      {/* Header */}
       <div className="flex items-center gap-2 min-w-0">
-        {/* Category dot */}
-        <span
-          className="flex-shrink-0 w-2 h-2 rounded-full"
-          style={{ background: color }}
-          aria-hidden="true"
-        />
-        {/* Handle */}
-        <a
-          href={`https://twitter.com/${tweet.handle}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs font-bold truncate hover:underline"
-          style={{ color }}
-          aria-label={`@${tweet.handle} on X/Twitter`}
-        >
-          @{tweet.handle}
-        </a>
-        {/* Name */}
-        <span className="text-[10px] text-slate-500 truncate hidden sm:inline">{tweet.name}</span>
-        {/* Time — pushed right */}
-        {tweet.date && (
-          <span
-            className="ml-auto flex-shrink-0 text-[10px] text-slate-600"
-            title={tweet.date.toLocaleString()}
+        {/* Avatar */}
+        {post.avatar ? (
+          <img
+            src={post.avatar}
+            alt=""
+            aria-hidden="true"
+            className="flex-shrink-0 rounded-full"
+            style={{ width: 28, height: 28, objectFit: 'cover' }}
+          />
+        ) : (
+          <div
+            className="flex-shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold"
+            style={{ width: 28, height: 28, background: '#1a4a7a', color: '#38bdf8' }}
+            aria-hidden="true"
           >
-            {relTime(tweet.date)}
+            {(post.handle || '?')[0].toUpperCase()}
+          </div>
+        )}
+
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-bold text-white truncate leading-tight">{post.name}</p>
+          <p className="text-[10px] text-slate-500 leading-tight">@{post.handle}</p>
+        </div>
+
+        {post.date && (
+          <span
+            className="flex-shrink-0 text-[10px] text-slate-600"
+            title={post.date.toLocaleString()}
+          >
+            {relTime(post.date)}
           </span>
         )}
       </div>
 
-      {/* Tweet text */}
-      <p className="text-[13px] text-slate-200 leading-snug break-words">
-        {tweet.text}
+      {/* Post text */}
+      <p className="text-[13px] text-slate-200 leading-snug break-words whitespace-pre-line">
+        {post.text}
       </p>
 
-      {/* Link to original */}
-      <a
-        href={tweet.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="self-start text-[10px] text-slate-600 hover:text-slate-400 transition-colors mt-0.5"
-      >
-        View on X ↗
-      </a>
+      {/* Footer */}
+      <div className="flex items-center gap-4 mt-0.5">
+        {post.likeCount > 0 && (
+          <span className="text-[10px] text-slate-600">♥ {post.likeCount}</span>
+        )}
+        {post.repostCount > 0 && (
+          <span className="text-[10px] text-slate-600">↻ {post.repostCount}</span>
+        )}
+        <a
+          href={post.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto text-[10px] text-slate-600 hover:text-[#38bdf8] transition-colors"
+        >
+          View on Bluesky ↗
+        </a>
+      </div>
     </article>
   )
 }
@@ -83,105 +87,69 @@ function SkeletonCard() {
       style={{ background: '#070f1c', border: '1px solid #1a4a7a' }}
     >
       <div className="flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full bg-slate-700" />
-        <div className="h-3 w-24 rounded bg-slate-700" />
-        <div className="ml-auto h-3 w-10 rounded bg-slate-700" />
+        <div className="w-7 h-7 rounded-full bg-slate-800 flex-shrink-0" />
+        <div className="flex-1 space-y-1">
+          <div className="h-2.5 w-28 rounded bg-slate-800" />
+          <div className="h-2 w-20 rounded bg-slate-800" />
+        </div>
+        <div className="h-2.5 w-10 rounded bg-slate-800" />
       </div>
       <div className="space-y-1.5">
-        <div className="h-3 w-full rounded bg-slate-800" />
-        <div className="h-3 w-5/6 rounded bg-slate-800" />
-        <div className="h-3 w-2/3 rounded bg-slate-800" />
+        <div className="h-2.5 w-full rounded bg-slate-800" />
+        <div className="h-2.5 w-5/6 rounded bg-slate-800" />
+        <div className="h-2.5 w-2/3 rounded bg-slate-800" />
       </div>
     </div>
   )
 }
 
 export function SocialsTab() {
-  const { tweets, loading, error, lastRefresh, refresh } = useSharkSocialFeed()
-  const [filterHandle, setFilterHandle] = useState(null)
+  const { posts, loading, error, lastRefresh, refresh } = useSharkSocialFeed()
+  const [search, setSearch] = useState('')
 
-  const displayed = filterHandle ? tweets.filter(t => t.handle === filterHandle) : tweets
-
-  // ── Error states ────────────────────────────────────────────────────────────
-  const errorMessages = {
-    nitter_unavailable: (
-      <div className="text-center p-6 space-y-2">
-        <p className="text-slate-300 text-sm font-medium">Twitter/X feed unavailable</p>
-        <p className="text-slate-500 text-xs leading-relaxed max-w-xs mx-auto">
-          The feed relies on Nitter (an open-source X/Twitter mirror). X/Twitter is currently
-          blocking all Nitter instances. This typically resolves within a few hours.
-        </p>
-        <button
-          onClick={refresh}
-          type="button"
-          className="mt-3 px-4 py-1.5 rounded text-xs font-medium transition-colors"
-          style={{ background: 'rgba(56,189,248,0.15)', color: '#38bdf8', border: '1px solid #38bdf8' }}
-        >
-          Try again
-        </button>
-      </div>
-    ),
-    no_data: (
-      <div className="text-center p-6">
-        <p className="text-slate-400 text-sm">No tweets retrieved — feed sources may be slow.</p>
-        <button onClick={refresh} type="button" className="mt-3 text-xs text-[#38bdf8] hover:underline">
-          Retry
-        </button>
-      </div>
-    ),
-    fetch_error: (
-      <div className="text-center p-6">
-        <p className="text-slate-400 text-sm">Network error fetching feed.</p>
-        <button onClick={refresh} type="button" className="mt-3 text-xs text-[#38bdf8] hover:underline">
-          Retry
-        </button>
-      </div>
-    ),
-  }
+  const displayed = search.trim()
+    ? posts.filter(p =>
+        p.text.toLowerCase().includes(search.toLowerCase()) ||
+        p.handle.toLowerCase().includes(search.toLowerCase()) ||
+        p.name.toLowerCase().includes(search.toLowerCase())
+      )
+    : posts
 
   return (
     <div className="flex flex-col h-full" style={{ minHeight: 300 }}>
-      {/* ── Toolbar ───────────────────────────────────────────────────────── */}
+
+      {/* ── Toolbar ─────────────────────────────────────────────────────────── */}
       <div
-        className="flex items-center gap-2 px-3 py-2 flex-shrink-0 overflow-x-auto"
+        className="flex items-center gap-2 px-3 py-2 flex-shrink-0"
         style={{ borderBottom: '1px solid #1a4a7a', background: '#050e1a' }}
       >
-        {/* Account filter pills */}
-        <button
-          onClick={() => setFilterHandle(null)}
-          type="button"
-          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded-full font-medium transition-colors"
-          style={{
-            background: !filterHandle ? '#38bdf8' : 'rgba(255,255,255,0.05)',
-            color:      !filterHandle ? '#050e1a' : '#94a3b8',
-          }}
+        {/* Platform badge */}
+        <span
+          className="flex-shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded"
+          style={{ background: 'rgba(0,133,255,0.15)', color: '#0085ff', border: '1px solid #0085ff55' }}
         >
-          All accounts
-        </button>
-        {FEED_ACCOUNTS.map(a => {
-          const active = filterHandle === a.handle
-          const color  = CATEGORY_COLORS[a.category] || '#94a3b8'
-          return (
-            <button
-              key={a.handle}
-              onClick={() => setFilterHandle(active ? null : a.handle)}
-              type="button"
-              className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded-full transition-colors"
-              style={{
-                background: active ? `${color}22` : 'rgba(255,255,255,0.04)',
-                color:      active ? color : '#94a3b8',
-                border:     `1px solid ${active ? color : '#1e3a5a'}`,
-              }}
-            >
-              @{a.handle}
-            </button>
-          )
-        })}
+          Bluesky
+        </span>
 
-        {/* Spacer + refresh */}
-        <div className="ml-auto flex-shrink-0 flex items-center gap-3">
+        {/* Search / filter */}
+        <input
+          type="text"
+          placeholder="Filter posts…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="flex-1 text-xs px-2 py-1 rounded outline-none"
+          style={{
+            background:  '#0a1f35',
+            border:      '1px solid #1a4a7a',
+            color:       '#e2e8f0',
+            minWidth:    0,
+          }}
+        />
+
+        {/* Last refresh + refresh button */}
+        <div className="flex-shrink-0 flex items-center gap-2">
           {lastRefresh && !loading && (
-            <span className="text-[10px] text-slate-600 whitespace-nowrap">
+            <span className="text-[10px] text-slate-600 whitespace-nowrap hidden sm:inline">
               {relTime(lastRefresh)}
             </span>
           )}
@@ -189,7 +157,9 @@ export function SocialsTab() {
             onClick={refresh}
             disabled={loading}
             type="button"
-            className={`text-sm leading-none transition-colors ${loading ? 'animate-spin text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white'}`}
+            className={`text-sm leading-none transition-colors ${
+              loading ? 'animate-spin text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-white'
+            }`}
             title="Refresh feed"
             aria-label="Refresh social feed"
           >
@@ -198,32 +168,43 @@ export function SocialsTab() {
         </div>
       </div>
 
-      {/* ── Feed ──────────────────────────────────────────────────────────── */}
+      {/* ── Feed ────────────────────────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5">
 
-        {/* Loading skeletons */}
-        {loading && tweets.length === 0 && (
-          <>
-            {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
-          </>
+        {/* Loading */}
+        {loading && posts.length === 0 && (
+          Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
         )}
 
         {/* Error */}
-        {!loading && error && tweets.length === 0 && (errorMessages[error] || null)}
+        {!loading && error && posts.length === 0 && (
+          <div className="text-center py-8 space-y-2">
+            <p className="text-slate-300 text-sm">
+              {error === 'no_data' ? 'No posts retrieved right now.' : 'Unable to load social feed.'}
+            </p>
+            <button
+              onClick={refresh}
+              type="button"
+              className="text-xs text-[#38bdf8] hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        )}
 
-        {/* Tweet cards */}
-        {displayed.map(tweet => (
-          <TweetCard key={tweet.id} tweet={tweet} />
+        {/* Posts */}
+        {displayed.map(post => (
+          <PostCard key={post.id} post={post} />
         ))}
 
         {/* Empty after filter */}
-        {!loading && !error && displayed.length === 0 && tweets.length > 0 && (
+        {!loading && !error && displayed.length === 0 && posts.length > 0 && (
           <p className="text-center text-slate-500 text-sm py-8">
-            No recent posts from @{filterHandle}
+            No posts match "{search}"
           </p>
         )}
 
-        {/* Footer count */}
+        {/* Footer */}
         {displayed.length > 0 && (
           <p className="text-center text-[10px] text-slate-700 py-2">
             {displayed.length} posts · auto-refreshes every 5 min
