@@ -42,6 +42,8 @@ export function SharkFlashcards({ onClose }) {
   const [revealed, setRevealed] = useState(false)
   const [score,    setScore]    = useState(loadScore)
 
+  const total = cards.length
+
   // Persist completed score to localStorage so the welcome popup can reference it
   useEffect(() => {
     if (total > 0 && current >= total) {
@@ -90,7 +92,6 @@ export function SharkFlashcards({ onClose }) {
     setRevealed(false)
   }
 
-  const total    = cards.length
   const answered = Object.keys(score.answers).length
 
   // ── Loading ──────────────────────────────────────────────────────────────────
