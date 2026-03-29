@@ -122,8 +122,8 @@ export function BottomStrip({ forceOpen = false, activeTab: externalTab, onTabCh
 
       {/* Content panel */}
       {isOpen && (
-        <div style={forceOpen ? { flex: 1, overflow: 'hidden' } : { height: CONTENT_HEIGHT, overflow: 'hidden' }}>
-          <div className="h-full overflow-y-auto" style={{ background: '#050e1a' }}>
+        <div style={forceOpen ? { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' } : { height: CONTENT_HEIGHT, overflow: 'hidden' }}>
+          <div className={forceOpen ? 'flex-1 min-h-0 overflow-y-auto' : 'h-full overflow-y-auto'} style={{ background: '#050e1a' }}>
             {/* Close button — desktop only */}
             {!forceOpen && (
               <div className="flex justify-end px-3 pt-1.5 pb-0.5">

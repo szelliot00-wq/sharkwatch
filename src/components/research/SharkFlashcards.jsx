@@ -96,7 +96,7 @@ export function SharkFlashcards({ onClose }) {
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4 p-6 relative">
+      <div className="flex flex-col items-center justify-center min-h-full gap-4 p-6 relative">
         {onClose && (
           <button onClick={onClose} className="absolute top-2 right-2 text-slate-500 hover:text-white transition-colors text-base leading-none" title="Close" type="button">✕</button>
         )}
@@ -108,7 +108,7 @@ export function SharkFlashcards({ onClose }) {
 
   if (error || cards.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-3 p-6 text-center relative">
+      <div className="flex flex-col items-center justify-center min-h-full gap-3 p-6 text-center relative">
         {onClose && (
           <button onClick={onClose} className="absolute top-2 right-2 text-slate-500 hover:text-white transition-colors text-base leading-none" title="Close" type="button">✕</button>
         )}
@@ -129,7 +129,7 @@ export function SharkFlashcards({ onClose }) {
   if (current >= total) {
     const pct = Math.round((score.correct / total) * 100)
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-5 p-6 text-center relative">
+      <div className="flex flex-col items-center justify-center min-h-full gap-5 p-6 text-center relative">
         {onClose && (
           <button onClick={onClose} className="absolute top-2 right-2 text-slate-500 hover:text-white transition-colors text-base leading-none" title="Close" type="button">✕</button>
         )}
@@ -174,7 +174,7 @@ export function SharkFlashcards({ onClose }) {
   const wasCorrect = myAnswer !== undefined ? myAnswer : null
 
   return (
-    <div className="flex flex-col h-full p-4 gap-4">
+    <div className="flex flex-col min-h-full p-4 gap-4">
 
       {/* ── Score bar ──────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between flex-shrink-0">
