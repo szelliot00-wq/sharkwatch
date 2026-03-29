@@ -28,6 +28,12 @@ function saveScore(score) {
   try { sessionStorage.setItem(scoreKey(), JSON.stringify(score)) } catch {}
 }
 
+function saveLastScore(correct, total) {
+  try {
+    localStorage.setItem('shark_quiz_last_score', JSON.stringify({ correct, total, date: todayStr() }))
+  } catch {}
+}
+
 export function SharkFlashcards({ onClose }) {
   const [cards,    setCards]    = useState([])
   const [loading,  setLoading]  = useState(true)
@@ -35,6 +41,13 @@ export function SharkFlashcards({ onClose }) {
   const [current,  setCurrent]  = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [score,    setScore]    = useState(loadScore)
+
+  // Persist completed score to localStorage so the welcome popup can reference it
+  useEffect(() => {
+    if (total > 0 && current >= total) {
+      saveLastScore(score.correct, total)
+    }
+  }, [current, total])
 
   useEffect(() => {
     setLoading(true)

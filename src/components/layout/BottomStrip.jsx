@@ -54,6 +54,11 @@ export function BottomStrip({ forceOpen = false, activeTab: externalTab, onTabCh
     if (forceOpen && !internalTab) setInternalTab('research')
   }, [forceOpen])
 
+  // Allow App to navigate to a specific tab externally (e.g. quiz welcome popup)
+  useEffect(() => {
+    if (forceOpen && externalTab != null) setInternalTab(externalTab)
+  }, [externalTab])
+
   const activeTab = forceOpen ? internalTab : (externalTab ?? null)
 
   function handleTabClick(tabId) {

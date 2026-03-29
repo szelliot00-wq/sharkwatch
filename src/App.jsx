@@ -18,6 +18,64 @@ import { PhotoGallery } from './components/media/PhotoGallery'
 // Wikipedia species summary cache (keyed by species name, persists for session)
 const wikiCache = {}
 
+// ── Quiz welcome popup helpers ────────────────────────────────────────────────
+function todayStr() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function loadLastQuizScore() {
+  try {
+    const s = localStorage.getItem('shark_quiz_last_score')
+    return s ? JSON.parse(s) : null
+  } catch { return null }
+}
+
+function QuizPopup({ onAccept, onDismiss }) {
+  const last = loadLastQuizScore()
+  // Only show last score if it's from a previous day
+  const showLast = last && last.date !== todayStr()
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(5,14,26,0.85)', backdropFilter: 'blur(4px)' }}
+    >
+      <div
+        className="rounded-2xl p-7 flex flex-col items-center gap-5 text-center max-w-xs w-full"
+        style={{ background: '#0a1f35', border: '1px solid #1a4a7a', boxShadow: '0 25px 50px rgba(0,0,0,0.7)' }}
+      >
+        <span className="text-6xl" aria-hidden="true">🦈</span>
+        <div>
+          <h2 className="text-xl font-bold text-white">Welcome back, Zoe!</h2>
+          <p className="text-slate-400 text-sm mt-2 leading-relaxed">
+            {showLast
+              ? `Last time you got ${last.correct}/${last.total} — think you can beat it?`
+              : "Want to try today's shark quiz?"}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 w-full">
+          <button
+            onClick={onAccept}
+            type="button"
+            className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+            style={{ background: 'rgba(249,115,22,0.2)', color: '#f97316', border: '1px solid #f97316' }}
+          >
+            Let's go! 🦈
+          </button>
+          <button
+            onClick={onDismiss}
+            type="button"
+            className="w-full py-2 rounded-xl text-xs transition-colors"
+            style={{ color: '#6b7280' }}
+          >
+            Maybe later
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── useMediaQuery hook ───────────────────────────────────────────────────────
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(() => window.matchMedia(query).matches)
@@ -73,6 +131,20 @@ export default function App() {
   // ── Mobile layout state ──────────────────────────────────────────────────────
   const [mobileTab, setMobileTab] = useState('map') // 'sharks' | 'map' | 'feed' | 'research'
   const isMobile = useMediaQuery('(max-width: 767px)')
+
+  // ── Quiz welcome popup (once per day) ────────────────────────────────────────
+  const [showQuizPopup, setShowQuizPopup] = useState(() => {
+    try { return localStorage.getItem('shark_quiz_popup_date') !== todayStr() } catch { return false }
+  })
+
+  function dismissPopup(openQuiz = false) {
+    try { localStorage.setItem('shark_quiz_popup_date', todayStr()) } catch {}
+    setShowQuizPopup(false)
+    if (openQuiz) {
+      setResearchTab('flashcards')
+      if (isMobile) setMobileTab('research')
+    }
+  }
 
   // ── Map ref for imperative focus ─────────────────────────────────────────────
   const mapRef = useRef(null)
@@ -227,7 +299,7 @@ export default function App() {
         {/* Research panel */}
         {mobileTab === 'research' && (
           <div className="flex-1 min-h-0 overflow-y-auto" style={{ background: '#050e1a' }}>
-            <BottomStrip forceOpen />
+            <BottomStrip forceOpen activeTab={researchTab} />
           </div>
         )}
 
@@ -271,6 +343,14 @@ export default function App() {
             onPrev={galleryPrev}
             onNext={galleryNext}
             onClose={() => setGalleryOpen(false)}
+          />
+        )}
+
+        {/* Quiz welcome popup */}
+        {showQuizPopup && (
+          <QuizPopup
+            onAccept={() => dismissPopup(true)}
+            onDismiss={() => dismissPopup(false)}
           />
         )}
       </div>
@@ -368,6 +448,14 @@ export default function App() {
           onPrev={galleryPrev}
           onNext={galleryNext}
           onClose={() => setGalleryOpen(false)}
+        />
+      )}
+
+      {/* ── QUIZ welcome popup (once per day) ────────────────────────────── */}
+      {showQuizPopup && (
+        <QuizPopup
+          onAccept={() => dismissPopup(true)}
+          onDismiss={() => dismissPopup(false)}
         />
       )}
     </div>
