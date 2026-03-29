@@ -82,7 +82,7 @@ export function BottomStrip({ forceOpen = false, activeTab: externalTab, onTabCh
 
   return (
     <section
-      className="flex-shrink-0 flex flex-col"
+      className={forceOpen ? 'flex-1 min-h-0 flex flex-col' : 'flex-shrink-0 flex flex-col'}
       style={{
         background: '#0a1f35',
         borderTop: isOpen || forceOpen ? '1px solid #1a4a7a' : 'none',

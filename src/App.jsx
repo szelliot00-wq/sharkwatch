@@ -298,7 +298,7 @@ export default function App() {
 
         {/* Research panel */}
         {mobileTab === 'research' && (
-          <div className="flex-1 min-h-0 overflow-y-auto" style={{ background: '#050e1a' }}>
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col" style={{ background: '#050e1a' }}>
             <BottomStrip forceOpen activeTab={researchTab} />
           </div>
         )}
