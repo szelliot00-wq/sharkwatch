@@ -2,7 +2,7 @@
 
 A global shark intelligence dashboard — built as a therapeutic tool for a teenager whose special interest is sharks.
 
-Live at **`http://192.168.1.40:5174`** (hosted on MacBook Pro via pm2 + serve).
+Live at **`http://192.168.71.250:5174`** (hosted on MacBook Pro via pm2 + serve).
 
 ---
 
@@ -101,7 +101,7 @@ npm run deploy
 
 ## Deployment (MacBook Pro)
 
-**Remote:** `steveelliott@192.168.1.40` · SSH key: `~/.ssh/macbook_pro`
+**Remote:** `steveelliott@192.168.71.250` · SSH key: `~/.ssh/macbook_pro`
 **Served from:** `~/sharkwatch-dist/` · **pm2 process:** `sharkwatch` · **Port:** `5174`
 
 ```bash
@@ -128,12 +128,12 @@ The browser checks `/daily/{type}-{date}.json` first and only falls back to live
 
 To update the script after changes:
 ```bash
-scp -i ~/.ssh/macbook_pro scripts/generate-daily.js steveelliott@192.168.1.40:~/sharks-cron/generate-daily.js
+scp -i ~/.ssh/macbook_pro scripts/generate-daily.js steveelliott@192.168.71.250:~/sharks-cron/generate-daily.js
 ```
 
 To run manually:
 ```bash
-ssh -i ~/.ssh/macbook_pro steveelliott@192.168.1.40 'source ~/.nvm/nvm.sh && node ~/sharks-cron/generate-daily.js'
+ssh -i ~/.ssh/macbook_pro steveelliott@192.168.71.250 'source ~/.nvm/nvm.sh && node ~/sharks-cron/generate-daily.js'
 ```
 
 ---
