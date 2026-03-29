@@ -9,7 +9,7 @@ const RESEARCH_TABS = [
   { id: 'socials',    icon: '🐦', label: 'Socials'     },
   { id: 'aquarium',   icon: '🏛️', label: 'Cams'        },
   { id: 'species',    icon: '📖', label: 'Species'     },
-  { id: 'flashcards', icon: '🃏', label: 'Flashcards'  },
+  { id: 'flashcards', icon: '🃏', label: 'Daily Quiz'  },
   { id: 'history',    icon: '📅', label: 'History'     },
 ]
 

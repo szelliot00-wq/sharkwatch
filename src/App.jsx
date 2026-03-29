@@ -49,8 +49,8 @@ function QuizPopup({ onAccept, onDismiss }) {
           <h2 className="text-xl font-bold text-white">Welcome back, Zoe!</h2>
           <p className="text-slate-400 text-sm mt-2 leading-relaxed">
             {showLast
-              ? `Last time you got ${last.correct}/${last.total} — think you can beat it?`
-              : "Want to try today's shark quiz?"}
+              ? `Last time you got ${last.correct}/${last.total} — ready for Question 1 today?`
+              : 'Question 1 is ready — want to give it a go?'}
           </p>
         </div>
         <div className="flex flex-col gap-2 w-full">
