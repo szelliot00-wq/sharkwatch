@@ -27,7 +27,7 @@ Live at **`http://192.168.71.250:5174`** (hosted on MacBook Pro via pm2 + serve)
 | 🐦 Socials | Live Bluesky posts from shark scientists and conservation orgs |
 | 🏛️ Cams | 11 live aquarium webcams worldwide with local time clocks |
 | 📖 Species | Shark species encyclopaedia |
-| 🃏 Flashcards | Daily True/False shark myth-vs-fact mini-game (5 questions, daily score tracking) |
+| 🃏 Daily Quiz | Daily True/False shark myth-vs-fact mini-game (5 questions, daily score tracking) |
 | 📅 History | "This week in shark history" — 4 AI-generated on-this-day events spanning 1930–2020 |
 
 ### Additional features
@@ -37,6 +37,7 @@ Live at **`http://192.168.71.250:5174`** (hosted on MacBook Pro via pm2 + serve)
 - **Shark detail** — species Wikipedia summary, Gemini fun facts, ping timeline, migration mini-map
 - **Favourites** — star up to 5 sharks, pinned at top, persisted in localStorage
 - **Mobile layout** — tabbed bottom nav (Sharks / Map / Feed / Research)
+- **Daily Quiz popup** — once-per-day welcome popup on app open; references previous score, navigates to Daily Quiz tab on accept; uses "Question 1" framing so it doesn't feel like a test
 
 ---
 
@@ -61,7 +62,7 @@ Live at **`http://192.168.71.250:5174`** (hosted on MacBook Pro via pm2 + serve)
 | Semantic Scholar | Research papers (3 tabs) | None (rate-limited — sessionStorage cached) |
 | Unsplash | Photo of Day | `VITE_UNSPLASH_ACCESS_KEY` |
 | YouTube Data v3 | Shark encounter videos | Key in `YouTubeTab.jsx` |
-| Google Gemini | AI narratives, facts, chat, flashcards, history | `VITE_GEMINI_API_KEY` |
+| Google Gemini | AI narratives, facts, chat, daily quiz, history | `VITE_GEMINI_API_KEY` |
 | Bluesky (`public.api.bsky.app`) | Social feed | None |
 | TikTok embed (`tiktok.com/embed/v2`) | Video playback | None (curated IDs only) |
 
@@ -117,7 +118,7 @@ Auto-start on boot configured via launchd (`~/Library/LaunchAgents/pm2.steveelli
 
 ## Daily pre-generation (2am cron)
 
-Flashcard questions and history events are pre-generated nightly so they load instantly without waiting for the Gemini API.
+Daily Quiz questions and history events are pre-generated nightly so they load instantly without waiting for the Gemini API.
 
 **Scheduler:** launchd on MacBook Pro (`~/Library/LaunchAgents/com.sharkwatch.daily.plist`)
 **Script:** `~/sharks-cron/generate-daily.js`
@@ -169,7 +170,7 @@ src/
 │   ├── research/
 │   │   ├── ResearchHub.jsx       Paper tabs container
 │   │   ├── PaperCard.jsx         Paper with AI plain-English summary
-│   │   ├── SharkFlashcards.jsx   Daily True/False mini-game
+│   │   ├── SharkFlashcards.jsx   Daily Quiz — True/False mini-game (tab id: 'flashcards')
 │   │   └── SharkHistoryTab.jsx   On-this-day shark history
 │   ├── media/
 │   │   ├── PhotoOfDay.jsx        Hero banner with gallery trigger
