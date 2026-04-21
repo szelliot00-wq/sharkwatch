@@ -10,7 +10,7 @@
     "deploy": "npm run build && rsync -av --delete --exclude=daily/ dist/ steveelliott@192.168.71.250:~/sharkwatch-dist/ -e 'ssh -i ~/.ssh/macbook_pro' && ssh -i ~/.ssh/macbook_pro steveelliott@192.168.71.250 'source ~/.nvm/nvm.sh && pm2 restart sharkwatch'"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
+    "@anthropic-ai/sdk": "^0.36.3",
     "leaflet": "^1.9.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

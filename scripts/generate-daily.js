@@ -19,10 +19,10 @@ const path = require('path')
 
 const DATE_STR = process.argv[2] || new Date().toISOString().slice(0, 10)
 const DIST_DIR = path.join(process.env.HOME, 'sharkwatch-dist', 'daily')
-const MODEL    = 'gemini-2.5-flash'
+const MODEL    = 'claude-haiku-4-5'
 
 // Read API key from .env file or environment variable
-const API_KEY = process.env.GEMINI_API_KEY || readEnvKey()
+const API_KEY = process.env.ANTHROPIC_API_KEY || readEnvKey()
 
 function readEnvKey() {
   const candidates = [
@@ -33,29 +33,36 @@ function readEnvKey() {
   for (const p of candidates) {
     try {
       const text = fs.readFileSync(p, 'utf8')
-      const m = text.match(/VITE_GEMINI_API_KEY=([^\n\r]+)/)
+      const m = text.match(/VITE_ANTHROPIC_API_KEY=([^\n\r]+)/)
       if (m) return m[1].trim()
     } catch { /* try next */ }
   }
-  console.error('ERROR: Could not find GEMINI_API_KEY. Set the env var or ensure .env exists.')
+  console.error('ERROR: Could not find ANTHROPIC_API_KEY. Set the env var or ensure .env exists.')
   process.exit(1)
 }
 
-// ── Gemini REST call ──────────────────────────────────────────────────────────
+// ── Anthropic REST call ───────────────────────────────────────────────────────
 
-async function callGemini(prompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`
-  const res = await fetch(url, {
+async function callClaude(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    }),
   })
   if (!res.ok) {
     const body = await res.text().catch(() => '')
-    throw new Error(`Gemini ${res.status}: ${body.slice(0, 200)}`)
+    throw new Error(`Claude ${res.status}: ${body.slice(0, 200)}`)
   }
   const data = await res.json()
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? null
+  return data.content?.[0]?.text ?? null
 }
 
 function parseJSONArray(raw) {
@@ -82,7 +89,7 @@ async function generateFlashcards(dateStr) {
     '\n\n' +
     `Generate 5 shark True/False flashcards for ${dateStr}. Avoid obvious myths like "sharks must swim to breathe" — go deeper and more surprising. Each should make the reader think.`
 
-  const raw = await callGemini(prompt)
+  const raw = await callClaude(prompt)
   return parseJSONArray(raw)
 }
 
@@ -106,7 +113,7 @@ async function generateHistory(dateStr) {
     '\n\n' +
     `Generate 4 shark history events for "this week in shark history" — events that happened around ${dl}. Span different decades between 1930 and 2020. Make each one feel like a significant moment in shark science.`
 
-  const raw = await callGemini(prompt)
+  const raw = await callClaude(prompt)
   return parseJSONArray(raw)
 }
 

@@ -1,13 +1,17 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import Anthropic from '@anthropic-ai/sdk'
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+const client = new Anthropic({
+  apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY,
+  dangerouslyAllowBrowser: true,
+})
+
+const MODEL = 'claude-haiku-4-5'
 
 // In-memory cache to avoid redundant API calls within a session
 const cache = new Map()
 
 /**
- * Generate text from Gemini, with caching.
+ * Generate text from Claude, with caching.
  *
  * @param {string} cacheKey - Unique key identifying this request
  * @param {string} systemPrompt - Instruction context for the model
@@ -18,13 +22,17 @@ export async function generateText(cacheKey, systemPrompt, userPrompt) {
   if (cache.has(cacheKey)) return cache.get(cacheKey)
 
   try {
-    const prompt = systemPrompt + '\n\n' + userPrompt
-    const result = await model.generateContent(prompt)
-    const text = result.response.text()
+    const message = await client.messages.create({
+      model: MODEL,
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    })
+    const text = message.content[0].text
     cache.set(cacheKey, text)
     return text
   } catch (err) {
-    console.error('Gemini error:', err)
+    console.error('Claude error:', err)
     return null
   }
 }
@@ -117,7 +125,6 @@ export async function getSpeciesFunFacts(commonName, scientificName) {
  * @returns {Promise<string|null>}
  */
 export async function getPaperSummary(abstract) {
-  // Use a hash of the first 100 chars as a cache key
   const cacheKey = `paper-${abstract.slice(0, 100)}`
 
   const systemPrompt =
@@ -128,7 +135,7 @@ export async function getPaperSummary(abstract) {
   return generateText(cacheKey, systemPrompt, userPrompt)
 }
 
-/** Parse a JSON array from a Gemini response, with bracket-extraction fallback. */
+/** Parse a JSON array from a Claude response, with bracket-extraction fallback. */
 function parseJSONArray(raw) {
   if (!raw) return null
   try {
@@ -147,9 +154,8 @@ function parseJSONArray(raw) {
 
 /**
  * Generate 5 shark myth-vs-fact True/False flashcard questions for a given date.
- * Suitable for an 18-year-old with expert interest in sharks.
  *
- * @param {string} dateStr - YYYY-MM-DD (used as cache key so questions change daily)
+ * @param {string} dateStr - YYYY-MM-DD
  * @returns {Promise<Array<{ statement: string, isTrue: boolean, explanation: string, category: string }>>}
  */
 export async function getSharkFlashcards(dateStr) {
@@ -169,7 +175,6 @@ export async function getSharkFlashcards(dateStr) {
     }
   } catch { /* fall through to live API */ }
 
-  // Fall back to live Gemini API
   const systemPrompt =
     'You generate shark myth-vs-fact True/False flashcard questions for an 18-year-old with expert-level interest in marine biology. Questions must be scientifically accurate, surprising, and varied across species biology, behaviour, ocean science, conservation, and research. Mix true and false statements. Return a JSON array of exactly 5 objects, each with: statement (string), isTrue (boolean), explanation (string, 1-2 sentences of scientific context), category (one of: biology|behaviour|conservation|ocean|history).'
 
@@ -183,10 +188,9 @@ export async function getSharkFlashcards(dateStr) {
 
 /**
  * Generate 4 "on this day in shark history" events for a given date.
- * Events should span different decades and categories.
  *
- * @param {string} monthDay - MM-DD (day of year used as cache key)
- * @param {string} dateLabel - Human-readable date for the prompt (e.g. "7 March")
+ * @param {string} monthDay - MM-DD
+ * @param {string} dateLabel - Human-readable date (e.g. "7 March")
  * @returns {Promise<Array<{ year: number, title: string, narrative: string, category: string }>>}
  */
 export async function getSharkHistory(monthDay, dateLabel) {
@@ -206,7 +210,6 @@ export async function getSharkHistory(monthDay, dateLabel) {
     }
   } catch { /* fall through to live API */ }
 
-  // Fall back to live Gemini API
   const systemPrompt =
     'You are a shark science historian generating "on this day / this week in shark history" events. Events can be real or plausibly constructed from the history of shark research — first expeditions, species discoveries, landmark conservation laws, famous research milestones, first cage dives, important publications, tagging firsts. Be specific with years, places, and names. Content should inspire a teenage marine biology enthusiast. Return a JSON array of exactly 4 objects with: year (number), title (string, max 70 chars), narrative (string, 2-3 vivid sentences), category (one of: research|discovery|conservation|encounter|milestone).'
 
@@ -220,16 +223,8 @@ export async function getSharkHistory(monthDay, dateLabel) {
 
 /**
  * Generate a short "what's happening in the ocean right now" daily digest.
- * Weaves together moon phase, top tracked shark, and a news headline.
  *
  * @param {object} params
- * @param {string} params.moonEmoji
- * @param {string} params.moonPhase
- * @param {string} params.moonNote
- * @param {string} params.sharkName
- * @param {string} params.sharkSpecies
- * @param {string} params.newsHeadline
- * @param {string} params.dateStr - YYYY-MM-DD cache key
  * @returns {Promise<string|null>}
  */
 export async function getDailyDigest({ moonEmoji, moonPhase, moonNote, sharkName, sharkSpecies, newsHeadline, dateStr }) {
@@ -245,7 +240,6 @@ export async function getDailyDigest({ moonEmoji, moonPhase, moonNote, sharkName
 
 /**
  * Generate a shark-scoped chat response using conversation history.
- * The assistant will redirect off-topic questions back to sharks.
  *
  * @param {string} userMessage - The latest message from the user
  * @param {Array<{ role: 'user'|'model', text: string }>} conversationHistory - Prior turns
@@ -255,18 +249,30 @@ export async function getSharkChatResponse(userMessage, conversationHistory = []
   const systemPrompt =
     'You are SharkWatch Assistant. Answer questions ONLY about sharks — biology, behaviour, species, conservation, research, ocean science. If asked anything else, redirect back to sharks. Keep answers concise and age-appropriate. You are talking to a teenager with expert-level interest in sharks.'
 
-  // Build a history string to include prior context
-  const historyText = conversationHistory
-    .map(turn => `${turn.role === 'user' ? 'User' : 'SharkWatch'}: ${turn.text}`)
-    .join('\n')
+  // Build Claude messages array from conversation history
+  const messages = conversationHistory.map(turn => ({
+    role: turn.role === 'user' ? 'user' : 'assistant',
+    content: turn.text,
+  }))
+  messages.push({ role: 'user', content: userMessage })
 
-  const userPrompt = historyText
-    ? `${historyText}\nUser: ${userMessage}`
-    : userMessage
-
-  // Cache key includes last 3 turns + current message to avoid stale cache collisions
   const recentHistory = conversationHistory.slice(-3).map(t => t.text).join('|')
   const cacheKey = `chat-${recentHistory}-${userMessage}`.slice(0, 200)
 
-  return generateText(cacheKey, systemPrompt, userPrompt)
+  if (cache.has(cacheKey)) return cache.get(cacheKey)
+
+  try {
+    const message = await client.messages.create({
+      model: MODEL,
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages,
+    })
+    const text = message.content[0].text
+    cache.set(cacheKey, text)
+    return text
+  } catch (err) {
+    console.error('Claude error:', err)
+    return null
+  }
 }
