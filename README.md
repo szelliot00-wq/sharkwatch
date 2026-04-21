@@ -14,7 +14,7 @@ Live at **`http://192.168.71.250:5174`** (hosted on MacBook Pro via pm2 + serve)
 | **Centre** | Interactive Leaflet map — current positions, migration path on click, iNaturalist sightings |
 | **Right** | Daily Ocean Digest (AI), interleaved iNaturalist sightings + RSS news feed |
 | **Bottom** | Research Hub, YouTube, TikTok, Streaming, Socials, Aquarium Cams, Species, Flashcards, History |
-| **Floating** | Ask a Shark — Gemini-powered chat widget scoped to sharks only |
+| **Floating** | Ask a Shark — Claude-powered chat widget scoped to sharks only |
 
 ### Bottom strip tabs
 
@@ -33,8 +33,8 @@ Live at **`http://192.168.71.250:5174`** (hosted on MacBook Pro via pm2 + serve)
 ### Additional features
 - **Photo of Day** — Unsplash/iNaturalist hero banner with drama scoring, daily rotation, full-screen gallery mode
 - **Moon phase** — client-side lunar calculation with shark behaviour notes
-- **Daily Ocean Digest** — Gemini paragraph weaving moon phase + top shark + latest headline
-- **Shark detail** — species Wikipedia summary, Gemini fun facts, ping timeline, migration mini-map
+- **Daily Ocean Digest** — Claude paragraph weaving moon phase + top shark + latest headline
+- **Shark detail** — species Wikipedia summary, Claude fun facts, ping timeline, migration mini-map
 - **Favourites** — star up to 5 sharks, pinned at top, persisted in localStorage
 - **Mobile layout** — tabbed bottom nav (Sharks / Map / Feed / Research)
 - **Daily Quiz popup** — once-per-day welcome popup on app open; references previous score, navigates to Daily Quiz tab on accept; uses "Question 1" framing so it doesn't feel like a test
@@ -46,7 +46,7 @@ Live at **`http://192.168.71.250:5174`** (hosted on MacBook Pro via pm2 + serve)
 - **React 18 + Vite** — client-side SPA, no backend
 - **Tailwind CSS** — dark ocean theme (`#050e1a` base)
 - **Leaflet / react-leaflet** — interactive map, CartoDB dark tiles
-- **@google/generative-ai** — Gemini 2.5-flash for AI features
+- **@anthropic-ai/sdk** — Claude Haiku 4.5 for AI features
 - **corsproxy.io** — CORS proxy for OCEARCH + RSS feeds
 - **Bluesky AT Protocol** — public API, no auth required
 
@@ -62,7 +62,7 @@ Live at **`http://192.168.71.250:5174`** (hosted on MacBook Pro via pm2 + serve)
 | Semantic Scholar | Research papers (3 tabs) | None (rate-limited — sessionStorage cached) |
 | Unsplash | Photo of Day | `VITE_UNSPLASH_ACCESS_KEY` |
 | YouTube Data v3 | Shark encounter videos | Key in `YouTubeTab.jsx` |
-| Google Gemini | AI narratives, facts, chat, daily quiz, history | `VITE_GEMINI_API_KEY` |
+| Anthropic Claude | AI narratives, facts, chat, daily quiz, history | `VITE_ANTHROPIC_API_KEY` |
 | Bluesky (`public.api.bsky.app`) | Social feed | None |
 | TikTok embed (`tiktok.com/embed/v2`) | Video playback | None (curated IDs only) |
 
@@ -82,7 +82,7 @@ npm install
 ### Environment variables
 Create `.env` in the project root:
 ```
-VITE_GEMINI_API_KEY=your_gemini_key
+VITE_ANTHROPIC_API_KEY=your_anthropic_key
 VITE_UNSPLASH_ACCESS_KEY=your_unsplash_key
 ```
 
@@ -118,14 +118,14 @@ Auto-start on boot configured via launchd (`~/Library/LaunchAgents/pm2.steveelli
 
 ## Daily pre-generation (2am cron)
 
-Daily Quiz questions and history events are pre-generated nightly so they load instantly without waiting for the Gemini API.
+Daily Quiz questions and history events are pre-generated nightly so they load instantly without waiting for the Claude API.
 
 **Scheduler:** launchd on MacBook Pro (`~/Library/LaunchAgents/com.sharkwatch.daily.plist`)
 **Script:** `~/sharks-cron/generate-daily.js`
 **Output:** `~/sharkwatch-dist/daily/flashcards-YYYY-MM-DD.json` and `history-MM-DD.json`
 **Log:** `~/sharks-cron/daily.log`
 
-The browser checks `/daily/{type}-{date}.json` first and only falls back to live Gemini if the file isn't there. The `daily/` folder is excluded from rsync so deployments never wipe pre-generated content.
+The browser checks `/daily/{type}-{date}.json` first and only falls back to live Claude if the file isn't there. The `daily/` folder is excluded from rsync so deployments never wipe pre-generated content.
 
 To update the script after changes:
 ```bash
@@ -187,7 +187,7 @@ src/
 │       ├── StatusDot.jsx         Ping age indicator
 │       └── LoadingSkeleton.jsx   Skeleton loaders
 ├── utils/
-│   ├── gemini.js                 Gemini wrapper (session cache + static file fallback)
+│   ├── gemini.js                 Claude wrapper (session cache + static file fallback)
 │   ├── cors.js                   corsproxy.io helper
 │   ├── moonPhase.js              Client-side lunar calculator
 │   ├── dramaScore.js             Unsplash photo quality scoring
