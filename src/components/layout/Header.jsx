@@ -11,6 +11,7 @@ const RESEARCH_TABS = [
   { id: 'species',    icon: '📖', label: 'Species'     },
   { id: 'flashcards', icon: '🃏', label: 'Daily Quiz'  },
   { id: 'history',    icon: '📅', label: 'History'     },
+  { id: 'bimini',    icon: '🎮', label: 'Bimini Run'  },
 ]
 
 export function Header({ lastUpdated, onRefresh, loading, researchTab, onResearchTab }) {

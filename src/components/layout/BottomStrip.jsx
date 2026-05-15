@@ -10,6 +10,7 @@ const SocialsTab      = lazy(() => import('../media/SocialsTab').then(m => ({ de
 const AquariumCamsTab = lazy(() => import('../media/AquariumCamsTab').then(m => ({ default: m.AquariumCamsTab })))
 const SharkFlashcards = lazy(() => import('../research/SharkFlashcards').then(m => ({ default: m.SharkFlashcards })))
 const SharkHistoryTab = lazy(() => import('../research/SharkHistoryTab').then(m => ({ default: m.SharkHistoryTab })))
+const BiminiRunTab    = lazy(() => import('../media/BiminiRunTab').then(m => ({ default: m.BiminiRunTab })))
 
 // Tabs (used for the mobile tab bar when forceOpen=true)
 const TABS = [
@@ -22,6 +23,7 @@ const TABS = [
   { id: 'species',    icon: '📖', label: 'Species'        },
   { id: 'flashcards', icon: '🃏', label: 'Daily Quiz'     },
   { id: 'history',    icon: '📅', label: 'History'        },
+  { id: 'bimini',    icon: '🎮', label: 'Bimini Run'    },
 ]
 
 const CONTENT_HEIGHT = 350
@@ -147,6 +149,7 @@ export function BottomStrip({ forceOpen = false, activeTab: externalTab, onTabCh
               {activeTab === 'species'    && <SpeciesEncyclopedia />}
               {activeTab === 'flashcards' && <SharkFlashcards onClose={handleClose} />}
               {activeTab === 'history'    && <SharkHistoryTab />}
+              {activeTab === 'bimini'    && <BiminiRunTab />}
             </Suspense>
           </div>
         </div>

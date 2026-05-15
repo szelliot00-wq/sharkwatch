@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getSharkFlashcards } from '../../utils/gemini'
+import { getSharkFlashcards, getMoreSharkFlashcards } from '../../utils/gemini'
 
 const CATEGORY_COLOR = {
   biology:      '#38bdf8',
@@ -35,12 +35,14 @@ function saveLastScore(correct, total) {
 }
 
 export function SharkFlashcards({ onClose }) {
-  const [cards,    setCards]    = useState([])
-  const [loading,  setLoading]  = useState(true)
-  const [error,    setError]    = useState(false)
-  const [current,  setCurrent]  = useState(0)
-  const [revealed, setRevealed] = useState(false)
-  const [score,    setScore]    = useState(loadScore)
+  const [cards,       setCards]       = useState([])
+  const [loading,     setLoading]     = useState(true)
+  const [error,       setError]       = useState(false)
+  const [current,     setCurrent]     = useState(0)
+  const [revealed,    setRevealed]    = useState(false)
+  const [score,       setScore]       = useState(loadScore)
+  const [round,       setRound]       = useState(1)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   const total = cards.length
 
@@ -90,6 +92,23 @@ export function SharkFlashcards({ onClose }) {
   function restart() {
     setCurrent(0)
     setRevealed(false)
+  }
+
+  function loadMore() {
+    const nextRound = round + 1
+    const newStart  = cards.length
+    setLoadingMore(true)
+    getMoreSharkFlashcards(todayStr(), nextRound)
+      .then(data => {
+        if (data && data.length > 0) {
+          setCards(prev => [...prev, ...data])
+          setRound(nextRound)
+          setCurrent(newStart)
+          setRevealed(false)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingMore(false))
   }
 
   const answered = Object.keys(score.answers).length
@@ -144,27 +163,35 @@ export function SharkFlashcards({ onClose }) {
                          'Sharks are full of surprises — try again tomorrow!'}
           </p>
         </div>
-        <div className="flex gap-3">
+        <button
+          onClick={loadMore}
+          disabled={loadingMore}
+          type="button"
+          className="w-full px-5 py-3 rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
+          style={{ background: 'rgba(249,115,22,0.15)', color: '#f97316', border: '1px solid #f97316' }}
+        >
+          {loadingMore ? 'Generating more questions…' : 'More questions →'}
+        </button>
+        <div className="flex gap-3 w-full">
           <button
             onClick={restart}
             type="button"
-            className="px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
+            className="flex-1 px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
             style={{ background: 'rgba(56,189,248,0.15)', color: '#38bdf8', border: '1px solid #38bdf8' }}
           >
-            Review cards again
+            Review all cards
           </button>
           {onClose && (
             <button
               onClick={onClose}
               type="button"
-              className="px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
+              className="flex-1 px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
               style={{ background: 'rgba(148,163,184,0.1)', color: '#94a3b8', border: '1px solid #475569' }}
             >
               Done
             </button>
           )}
         </div>
-        <p className="text-[10px] text-slate-600">New questions tomorrow</p>
       </div>
     )
   }

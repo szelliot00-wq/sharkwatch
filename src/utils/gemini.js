@@ -187,6 +187,28 @@ export async function getSharkFlashcards(dateStr) {
 }
 
 /**
+ * Generate 5 additional shark True/False flashcards (bonus rounds).
+ *
+ * @param {string} dateStr - YYYY-MM-DD
+ * @param {number} round - Round number (2, 3, …) to keep cache keys distinct
+ * @returns {Promise<Array<{ statement: string, isTrue: boolean, explanation: string, category: string }>>}
+ */
+export async function getMoreSharkFlashcards(dateStr, round) {
+  const cacheKey = `flashcards-more-${dateStr}-${round}`
+  if (cache.has(cacheKey)) return cache.get(cacheKey)
+
+  const systemPrompt =
+    'You generate shark myth-vs-fact True/False flashcard questions for an 18-year-old with expert-level interest in marine biology. Questions must be scientifically accurate, surprising, and varied across species biology, behaviour, ocean science, conservation, and research. Mix true and false statements. Return a JSON array of exactly 5 objects, each with: statement (string), isTrue (boolean), explanation (string, 1-2 sentences of scientific context), category (one of: biology|behaviour|conservation|ocean|history).'
+
+  const userPrompt = `Generate 5 more shark True/False flashcards for bonus round ${round} on ${dateStr}. Go deeper than the standard set — focus on obscure species, cutting-edge research findings, surprising evolutionary facts, or lesser-known shark behaviours. Make every question genuinely challenging.`
+
+  const raw = await generateText(cacheKey, systemPrompt, userPrompt)
+  const result = parseJSONArray(raw) ?? []
+  if (result.length > 0) cache.set(cacheKey, result)
+  return result
+}
+
+/**
  * Generate 4 "on this day in shark history" events for a given date.
  *
  * @param {string} monthDay - MM-DD
