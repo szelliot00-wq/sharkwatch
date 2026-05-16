@@ -12,8 +12,9 @@
 
 'use strict'
 
-const fs   = require('fs')
-const path = require('path')
+const fs            = require('fs')
+const path          = require('path')
+const { spawnSync } = require('child_process')
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -21,48 +22,31 @@ const DATE_STR = process.argv[2] || new Date().toISOString().slice(0, 10)
 const DIST_DIR = path.join(process.env.HOME, 'sharkwatch-dist', 'daily')
 const MODEL    = 'claude-haiku-4-5'
 
-// Read API key from .env file or environment variable
-const API_KEY = process.env.ANTHROPIC_API_KEY || readEnvKey()
+// ── Claude CLI call ───────────────────────────────────────────────────────────
 
-function readEnvKey() {
-  const candidates = [
-    path.join(process.env.HOME, 'Claude-projects/Sharks/.env'),
-    path.join(__dirname, '../.env'),
-    path.join(__dirname, '.env'),
-  ]
-  for (const p of candidates) {
-    try {
-      const text = fs.readFileSync(p, 'utf8')
-      const m = text.match(/VITE_ANTHROPIC_API_KEY=([^\n\r]+)/)
-      if (m) return m[1].trim()
-    } catch { /* try next */ }
+function findClaude() {
+  for (const p of ['/opt/homebrew/bin/claude', '/usr/local/bin/claude']) {
+    if (fs.existsSync(p)) return p
   }
-  console.error('ERROR: Could not find ANTHROPIC_API_KEY. Set the env var or ensure .env exists.')
-  process.exit(1)
+  return 'claude'
 }
 
-// ── Anthropic REST call ───────────────────────────────────────────────────────
-
 async function callClaude(prompt) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  })
-  if (!res.ok) {
-    const body = await res.text().catch(() => '')
-    throw new Error(`Claude ${res.status}: ${body.slice(0, 200)}`)
+  const result = spawnSync(
+    findClaude(),
+    ['--print', '--model', MODEL, '--dangerously-skip-permissions'],
+    {
+      input: prompt,
+      encoding: 'utf8',
+      env: { ...process.env, CLAUDECODE: '' },
+      timeout: 120000,
+    }
+  )
+  if (result.error) throw new Error(`Claude spawn error: ${result.error.message}`)
+  if (result.status !== 0) {
+    throw new Error(`Claude error (rc=${result.status}): ${(result.stderr || '').slice(0, 300)}`)
   }
-  const data = await res.json()
-  return data.content?.[0]?.text ?? null
+  return (result.stdout || '').trim()
 }
 
 function parseJSONArray(raw) {
