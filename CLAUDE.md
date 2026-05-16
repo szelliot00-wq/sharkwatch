@@ -42,6 +42,7 @@ SSH: `steveelliott@192.168.71.250` · key: `~/.ssh/macbook_pro`
 - Embeds the Phaser game from `http://192.168.71.250:5175` in an iframe
 - Shows a controls hint bar: ⬆/W up, ⬇/S down, Space pause, tap top/bottom half on mobile
 - Shows offline message if port 5175 is unreachable
+- Game source: `~/Claude-projects/sharkgame` · deploy: `npm run deploy` (rsyncs to `~/bimini-run-dist/` on MacBook Pro — **not** `~/sharkgame-dist/`)
 
 ### Quiz welcome popup (`src/App.jsx` — `QuizPopup` component)
 - Shows once per day (gated by `shark_quiz_popup_date` in localStorage)
